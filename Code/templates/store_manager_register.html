@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Store Manager Registration</title>
+</head>
+<header>
+    <a href="/">Back to Index</a>
+</header>
+<body>
+    <h1>Store Manager Registration</h1>
+    <form action="#" method="POST" id="signup-form">
+        <label>Email Address</label>
+        <input type="text" name="email" required /><br><br>
+
+        <label>Password</label>
+        <input type="password" name="password" required /><br><br>
+
+        <button type="submit">Submit</button><br><br>
+
+        <span>Already have an account?</span>
+        <a href="/store_manager/login">Sign in</a>
+    </form>
+
+    <div class="approval-section" style="display: none;">
+        <h3>Admin Approval</h3>
+        <p>Enter Admin Credentials:</p>
+        <input type="text" id="admin-email" placeholder="Admin Email">
+        <input type="password" id="admin-password" placeholder="Admin Password">
+        <button id="approve-button">Approve</button>
+        <button id="reject-button">Reject</button>
+        <p id="admin-response" style="display: none;"></p>
+    </div>
+
+    <script>
+        // document.querySelector('#signup-form').addEventListener('click', function (e) {
+        //     e.preventDefault();
+        //     document.querySelector('.approval-section').style.display = 'block';
+        // });
+
+        // document.querySelector('#approve-button').addEventListener('click', function () {
+        //     var adminEmail = document.querySelector('#admin-email').value;
+        //     var adminPassword = document.querySelector('#admin-password').value;
+
+        //     fetch('/validate_admin', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify({ email: adminEmail, password: adminPassword })
+        //     })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         if (data.valid) {
+        //             fetch('/store_manager/register', {
+        //                 method: 'POST',
+        //                 headers: {
+        //                     'Content-Type': 'application/json'
+        //                 },
+        //                 body: JSON.stringify({ email: document.querySelector('[name="email"]').value, password: document.querySelector('[name="password"]').value })
+        //             })
+        //             .then(response => response.json())
+        //             .then(data => {
+        //                 if (data.message === 'Store Manager Registered Successfully') {
+        //                     document.querySelector('#admin-response').textContent = 'Store Manager added successfully';
+        //                     prompt("Store Manager Registered successfully");
+        //                     window.location.replace('/store_manager/login');
+        //                 } else {
+        //                     document.querySelector('#admin-response').textContent = 'Failed to add Store Manager';
+        //                 }
+        //                 document.querySelector('#admin-response').style.display = 'block';
+        //             });
+        //         } else {
+        //             document.querySelector('#admin-response').textContent = 'Admin credentials not valid';
+        //             prompt("Admin credentials not valid");
+        //             document.querySelector('#admin-response').style.display = 'block';
+        //         }
+        //     });
+        // });
+
+        // document.querySelector('#reject-button').addEventListener('click', function () {
+        //     var adminEmail = document.querySelector('#admin-email').value;
+        //     var adminPassword = document.querySelector('#admin-password').value;
+
+        //     fetch('/validate_admin', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify({ email: adminEmail, password: adminPassword })
+        //     })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         if (data.valid) {
+        //             document.querySelector('#admin-response').textContent = 'Admin rejected the request';
+        //             prompt("Admin Rejected the Request");
+        //             document.querySelector('#admin-response').style.display = 'block';
+        //         } else {
+        //             document.querySelector('#admin-response').textContent = 'Admin credentials not valid';
+        //             prompt("Admin credentials not valid");
+        //             document.querySelector('#admin-response').style.display = 'block';
+        //         }
+        //     });
+        // });
+        
+        document.querySelector('#signup-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Send the registration request to the server
+            fetch('/store_manager/register_request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: document.querySelector('[name="email"]').value,
+                    password: document.querySelector('[name="password"]').value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Registration request sent successfully') {
+                    alert('Registration request sent successfully. Waiting for admin approval.');
+                    window.location.replace('/');
+                } else {
+                    alert('Failed to send registration request');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+    

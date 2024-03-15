@@ -1,0 +1,84 @@
+#dummy
+
+from io import BytesIO
+import tempfile
+
+@celery.task
+def send_monthly_activity_report():
+    with app.app_context():
+        today = datetime.now()
+    
+        #if today.day == 1:
+        first_day_of_month = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        start_date = today - timedelta(days=30)
+        #last_day_of_month = first_day_of_month - timedelta(days=1)
+
+        users = User.query.filter_by(role='USER').all()
+
+        os.environ['WKHTMLTOPDF_PATH'] = '/usr/bin/wkhtmltopdf'
+
+        for user in users:
+            cart_orders = Cart.query.filter(
+                Cart.User_ID == user.id,
+                #Cart.Purchase_Date >= last_day_of_month.replace(day=1),
+                Cart.Purchase_Date >= start_date,
+                #Cart.Purchase_Date <= last_day_of_month,
+                Cart.Purchase_Date <= first_day_of_month,
+            ).all()
+
+            if cart_orders:
+                env = Environment(loader=FileSystemLoader('templates'))
+                template = env.get_template('monthly_activity_report.html')
+                html_content = template.render(user=user, cart_orders=cart_orders, today=today)
+
+                # Save HTML content to a temporary file
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as temp_html:
+                    temp_html.write(html_content.encode())
+                    temp_html_path = temp_html.name
+
+                # Use a temporary file for PDF output
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
+                    pdf_output_path = temp_pdf.name
+
+                # Use the temporary HTML file path
+                pdfkit.from_file(temp_html_path, pdf_output_path, options={'quiet': ''})
+
+                # Read the contents of the PDF file into a BytesIO object
+                with open(pdf_output_path, 'rb') as pdf_file:
+                    pdf_output = BytesIO(pdf_file.read())
+
+                # Remove the temporary HTML and PDF files
+                os.remove(temp_html_path)
+                os.remove(pdf_output_path)
+
+                subject = f"Monthly Activity Report - {first_day_of_month.strftime('%B %Y')}"
+                send_email_monthly(user.email, subject, html_content, attachment_file=pdf_output.read(), content="html")
+
+
+def send_email_monthly(to_address, subject, message, content="text", attachment_file=None):
+    user = User.query.filter_by(email=to_address).first()
+
+    if user:
+        msg = MIMEMultipart()
+        msg['From'] = SENDER_ADDRESS
+        msg['To'] = to_address
+        msg['Subject'] = subject
+
+        if content == "html":
+            msg.attach(MIMEText(message, "html"))
+        else:
+            msg.attach(MIMEText(message, "plain"))
+
+        if attachment_file:
+            # Directly use the bytes object
+            attachment = MIMEApplication(attachment_file, Name="Monthly_Activity_Report.pdf")
+            attachment['Content-Disposition'] = f'attachment; filename="Monthly_Activity_Report.pdf"'
+            msg.attach(attachment)
+
+        s = smtplib.SMTP(host=SMPTP_SERVER_HOST, port=SMPTP_SERVER_PORT)
+        s.login(SENDER_ADDRESS, SENDER_PASSWORD)
+        s.send_message(msg)
+        s.quit()
+        return True
+    else:
+        return False

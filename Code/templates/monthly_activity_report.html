@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Activity Report</title>
+    <style>
+        /* Add your custom styles here */
+    </style>
+</head>
+<body>
+
+    <h2>Monthly Activity Report - {{ user.email }} - {{ today.strftime('%B %Y') }}</h2>
+
+    <p>Hello {{ user.email }},</p>
+
+    <p>Below is your monthly activity report for the month of {{ today.strftime('%B %Y') }}:</p>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Purchase Date</th>
+                <th>Total Price</th>
+                <!-- Add more columns as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in cart_orders %}
+                <tr>
+                    <td>{{ order.Cart_ID }}</td>
+                    <td>{{ order.Purchase_Date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>${{ order.Total_Price }}</td>
+                    <!-- Add more columns as needed -->
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p>Thank you for using our service!</p>
+
+</body>
+</html>

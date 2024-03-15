@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Admin Dashboard</title>
+
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1/dist/vue-resource.min.js"></script>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+        <script>
+            function logout() {
+                var token = localStorage.getItem('access_token');
+
+                var xhr = new XMLHttpRequest();
+
+                xhr.open('POST', '/admin/logout', true);
+
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+
+                xhr.onreadystatechange = function() {
+                    if(xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            console.log(response.message);
+                            window.location.replace('/');
+                        } else {
+                            console.log('Logout failed. Handle other cases here');
+                        }
+                    }
+                };
+
+                xhr.send();
+            }
+        </script>
+    </head>
+    <header>
+        <div class="top-bar">
+            <a href="javascript:logout()">Log Out</a>
+        </div>
+        <br>
+        <div id='app'>
+            <search-bar></search-bar>
+        </div>
+    </header>
+    <body>
+        <h1>Admin Dashboard</h1>
+
+        <!-- Manage Categories -->
+        <h2>Manage Categories</h2>
+        <a href="/admin/manage_categories">Manage Categories</a>
+
+        <!-- Requests -->
+        <h2>Requests from Store Managers</h2>
+        <a href="/admin/requests">Requests</a>
+
+        <h2>Store Manager Registration Requests</h2>
+        <ul id="registration-requests">
+            <!-- Requests will be dynamically added here -->
+        </ul>
+
+        <script>
+            // Use JavaScript to fetch and display store manager registration requests
+            fetch('/admin/registration_requests')
+            .then(response => response.json())
+            .then(data => {
+                const requestsList = document.getElementById('registration-requests');
+                data.requests.forEach(request => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Email: ${request.email}, Password: ${request.password}`;
+                    const acceptButton = document.createElement('button');
+                    acceptButton.textContent = 'Accept';
+                    acceptButton.addEventListener('click', () => handleRegistrationRequest(request.email, 'accept'));
+                    const rejectButton = document.createElement('button');
+                    rejectButton.textContent = 'Reject';
+                    rejectButton.addEventListener('click', () => handleRegistrationRequest(request.email, 'reject'));
+                    listItem.appendChild(acceptButton);
+                    listItem.appendChild(rejectButton);
+                    requestsList.appendChild(listItem);
+                });
+            });
+
+            function handleRegistrationRequest(requestEmail, action) {
+                // Send the action (accept or reject) to the server
+                fetch(`/admin/registration_requests/${requestEmail}/${action}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Request processed successfully') {
+                        alert(`Request ${action === 'accept' ? 'accepted' : 'rejected'} successfully.`);
+                        // Refresh the page or update the UI as needed
+                    } else {
+                        alert('Failed to process request');
+                    }
+                });
+            }
+        </script>
+        <script type="text/javascript" src="/main.js"></script>
+
+    </body>
+</html>

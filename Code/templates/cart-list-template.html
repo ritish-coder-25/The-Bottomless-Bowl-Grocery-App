@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Purchase History</title>
+
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+		
+	</head>
+	<header>
+		<a href="/user/dashboard">Return to User Dashboard</a>
+	</header>
+	<body>
+		<div>
+			<h1>Purchase History</h1>
+			<table class="table table-bordered table-striped">
+				<thead class="thead-dark">
+					<tr>
+						<th>Cart ID</th>
+						<th>Purchase Date</th>
+						<th>Cart Items</th>
+						<th>Total Price</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for cart in Cart %}
+						<tr>
+							<td>{{ cart.Cart_ID }}</td>
+							<td>{{ cart.Purchase_Date }}</td>
+							<td>
+								<ul>
+									{% for item in cart.Cart_Items %}
+										<li>{{ item }}</li>
+									{% endfor %}
+								</ul>
+							</td>
+							<td>{{ cart.Total_Price }}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</body>
+</html>
