@@ -1,6 +1,6 @@
 README FILE FOR APP-DEV-2-PROJECT – BOTTOMLESS BOWL GROCERY APP
 
-The Bottomless Bowl is a web application to shop for various products under various household categories. It is a part of the Modern App Development 1 course project.
+The Bottomless Bowl is a web application to shop for various products under various household categories. It is a part of the Zummit Infolabs Internship.
 
 HOW TO RUN THE APP FROM CODE – 
 
